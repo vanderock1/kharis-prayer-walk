@@ -51,7 +51,6 @@ The Kharis Prayer Walk App is a mobile application designed for the Kharis Churc
 
 ## Architecture
 
-![Architecture Diagram](https://github.com/user-attachments/assets/721b7fb3-e480-4809-9023-fd48b82b1f8c)
 
 The Kharis Prayer Walk App is built using the following technologies:
 
