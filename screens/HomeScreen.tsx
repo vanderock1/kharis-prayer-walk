@@ -1,4 +1,44 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import type { LatLng, Region } from 'react-native-maps';
+
+interface User {
+  id: string;
+  username: string;
+  name: string;
+  email?: string;
+  isAdmin: boolean;
+}
+
+interface Walk {
+  id: string;
+  user_id?: string;
+  user_name?: string;
+  user_email?: string;
+  date: string;
+  distance: number;
+  time: string;
+  path: LatLng[];
+}
+
+interface AdminStats {
+  totalWalks: number;
+  totalDistance: number;
+  avgTime: number|string; // Changed to string to match actual usage
+}
+
+interface LocationPoint {
+  latitude: number;
+  longitude: number;
+  timestamp?: number;
+  accuracy?: number;
+}
+
+interface LogoSvgProps {
+  style?: any; // Adjust the type according to your needs, typically it should be `StyleProp<ViewStyle>`
+  width?: number;
+  height?: number;
+}
+
 import { supabase } from '../utils/supabase';
 import { 
   View,
@@ -31,7 +71,12 @@ import * as Location from 'expo-location';
 import { Picker } from '@react-native-picker/picker';
 
 // Import map components from separate file
-import { MapComponent, MapPolyline, MapMarker, MapMarkerCluster } from '../components/MapComponents';
+import { 
+  MapComponent, 
+  MapPolyline, 
+  MapMarker, 
+  MapMarkerCluster,
+} from '../components/MapComponents';
 
 const { width, height } = Dimensions.get('window');
 
@@ -86,7 +131,7 @@ const mockUsers = [
 ];
 
 // Logo Component
-const LogoSvg = ({ style, width = 100, height = 100 }) => {
+const LogoSvg: React.FC<LogoSvgProps> = ({ style, width = 100, height = 100 }) => {
   return (
     <View style={[{ width, height }, style]}>
       <View style={{ 
@@ -115,7 +160,7 @@ const KHARIS_LIGHT = '#F8F8F8';
 const KHARIS_GRAY = '#777777';
 
 // Helper function to format time
-const formatTime = (seconds) => {
+const formatTime = (seconds: number): string => {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
@@ -129,40 +174,42 @@ const formatTime = (seconds) => {
 
 export default function KharisPrayerWalk() {
   // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState(null);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showLogin, setShowLogin] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-const [locationConsent, setLocationConsent] = useState(false);
-const [branch, setBranch] = useState("Kharis Birmingham");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showLogin, setShowLogin] = useState<boolean>(true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+const [locationConsent, setLocationConsent] = useState<boolean>(false);
+const [branch, setBranch] = useState<string>("Kharis Birmingham");
   
   // Animation values
   
   
   // App state
-  const [tab, setTab] = useState('track'); // 'track' or 'history'
-  const [isTracking, setIsTracking] = useState(false);
-  const [locations, setLocations] = useState([]);
-  const [time, setTime] = useState(0);
-  const [distance, setDistance] = useState(0);
-  const [hasLocationPermission, setHasLocationPermission] = useState(null);
-  const [currentRegion, setCurrentRegion] = useState(null);
-  const [summaryVisible, setSummaryVisible] = useState(false);
-  const [loading, setLoading] = useState(true);  const [walkData, setWalkData] = useState([]);
-  const [userWalks, setUserWalks] = useState([]);  const [adminStats, setAdminStats] = useState({
+  const [tab, setTab] = useState<'track' | 'history'>('track'); // 'track' or 'history'
+  const [isTracking, setIsTracking] = useState<boolean>(false);
+  const [locations, setLocations] = useState<LocationPoint[]>([]);
+  const [time, setTime] = useState<number>(0);
+  const [distance, setDistance] = useState<number>(0);
+  const [hasLocationPermission, setHasLocationPermission] = useState<boolean | null>(null);
+  const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
+  const [summaryVisible, setSummaryVisible] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [walkData, setWalkData] = useState<Walk[]>([]);
+  const [userWalks, setUserWalks] = useState<Walk[]>([]);
+  const [adminStats, setAdminStats] = useState<AdminStats>({
     totalWalks: 0,
     totalDistance: 0,
     avgTime: 0,
   });
   
-  const mapRef = useRef(null);
-  const timerRef = useRef(null);
-  const locationSubscription = useRef(null);  // No custom fonts needed  // Remove legacy Animated timing since we're now using reanimated's entering animation.
+  const mapRef = useRef<React.ComponentRef<typeof MapComponent>>(null);
+  const timerRef = useRef<NodeJS.Timeout>(null);
+  const locationSubscription = useRef<{remove: () => void}>(null);  // No custom fonts needed  // Remove legacy Animated timing since we're now using reanimated's entering animation.
   useEffect(() => {
     const timeout = setTimeout(() => {
       setIsLoading(false);
@@ -258,9 +305,10 @@ const [branch, setBranch] = useState("Kharis Birmingham");
     
     setAdminStats({
       totalWalks,
-      totalDistance: totalDistance.toFixed(1),      avgTime: formatTime(Math.round(avgTime)),
+      totalDistance: totalDistance.toFixed(1),     
+       avgTime: formatTime(Math.round(avgTime)),
     });
-  };  const handleLogin = async () => {
+  };  const handleLogin = async (): Promise<void> => {
     const email = username.trim();
     const pwd = password.trim();
     
@@ -292,7 +340,7 @@ const [branch, setBranch] = useState("Kharis Birmingham");
     }
   };
   
-  const handleSignup = async () => {
+  const handleSignup = async (): Promise<void> => {
     const email = username.trim();
     const pwd = password.trim();
     const fullName = name.trim();
@@ -355,7 +403,7 @@ const [branch, setBranch] = useState("Kharis Birmingham");
   };
   
   // Handle user logout
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     setIsAuthenticated(false);
     setCurrentUser(null);
     setUsername('');
@@ -606,7 +654,7 @@ const [branch, setBranch] = useState("Kharis Birmingham");
   };
   
   // Calculate distance between two coordinates
-  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371e3; // Earth radius in meters
     const φ1 = lat1 * Math.PI/180;
     const φ2 = lat2 * Math.PI/180;

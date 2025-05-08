@@ -1,14 +1,62 @@
 import React, { useMemo, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, Platform, Image } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
+import type { 
+  MapViewProps,
+  Polyline as PolylineType,
+  Marker as MarkerType,
+  Callout as CalloutType,
+  LatLng,
+  Region
+} from 'react-native-maps';
 
 // Constants
 const KHARIS_YELLOW = '#FFCC00';
 const KHARIS_GRAY = '#777777';
 const KHARIS_DARK = '#333333';
 
+interface Point {
+  latitude: number;
+  longitude: number;
+}
+
+interface MapComponentProps {
+  children?: React.ReactNode;
+  currentRegion?: Region;
+  onMapReady?: () => void;
+  style?: object;
+  initialRegion?: Region;
+  scrollEnabled?: boolean;
+  zoomEnabled?: boolean;
+  pitchEnabled?: boolean;
+  rotateEnabled?: boolean;
+  maxZoomLevel?: number;
+  minZoomLevel?: number;
+}
+
+interface MapPolylineProps {
+  coordinates: LatLng[];
+  strokeColor?: string;
+  strokeWidth?: number;
+  simplifyTolerance?: number;
+}
+
+interface MapMarkerProps {
+  coordinate: LatLng;
+  title?: string;
+  children?: React.ReactNode;
+}
+
+interface MapMarkerClusterProps {
+  markers: Array<{coordinate: LatLng, walkId?: string}>;
+  region: Region;
+}
+
 // Conditionally import MapView based on platform
-let MapView, Polyline, Marker, Callout;
+let MapView: React.ComponentType<MapViewProps>;
+let Polyline: typeof PolylineType;
+let Marker: typeof MarkerType;
+let Callout: typeof CalloutType;
 if (Platform.OS !== 'web') {
   // Only import on native platforms
   try {
@@ -23,7 +71,7 @@ if (Platform.OS !== 'web') {
 }
 
 // Path simplification algorithm (Ramer-Douglas-Peucker)
-const simplifyPath = (points, tolerance) => {
+const simplifyPath = (points: Point[], tolerance: number): Point[] => {
   if (points.length <= 2) return points;
   
   // Find the point with the maximum distance
@@ -54,7 +102,7 @@ const simplifyPath = (points, tolerance) => {
   }
 };
 
-const perpendicularDistance = (point, lineStart, lineEnd) => {
+const perpendicularDistance = (point: Point, lineStart: Point, lineEnd: Point): number => {
   const lat = point.latitude;
   const lng = point.longitude;
   const lat1 = lineStart.latitude;
@@ -91,7 +139,7 @@ const perpendicularDistance = (point, lineStart, lineEnd) => {
   return calculateDistance(lat, lng, xx, yy);
 };
 
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371e3; // Earth radius in meters
   const φ1 = lat1 * Math.PI/180;
   const φ2 = lat2 * Math.PI/180;
@@ -108,7 +156,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 // Create a MapComponent that handles platform differences
-export const MapComponent = React.memo(({ children, ...props }) => {
+export const MapComponent = React.memo(({ children, ...props }: MapComponentProps) => {
   const isNative = Platform.OS !== 'web';
   
   if (!isNative) {
@@ -149,7 +197,7 @@ export const MapComponent = React.memo(({ children, ...props }) => {
       {...props}
       onMapReady={props.onMapReady}
       moveOnMarkerPress={false}
-      showsPointsOfInterest={false} // Reduces map complexity
+      // showsPointsOfInterest={false} // Removed as not supported in current version
       showsBuildings={false} // Reduces map complexity
       rotateEnabled={false} // Reduces interaction complexity
       loadingEnabled={true} // Shows loading indicator while map loads
@@ -160,7 +208,12 @@ export const MapComponent = React.memo(({ children, ...props }) => {
 });
 
 // Optimized polyline for prayer walk paths
-export const MapPolyline = React.memo(({ coordinates, strokeColor, strokeWidth, simplifyTolerance = 0.0001 }) => {
+export const MapPolyline = React.memo(({ 
+  coordinates, 
+  strokeColor = KHARIS_YELLOW, 
+  strokeWidth = 3, 
+  simplifyTolerance = 0.0001 
+}: MapPolylineProps) => {
   const isNative = Platform.OS !== 'web';
   
   // Skip rendering on web
@@ -189,7 +242,7 @@ export const MapPolyline = React.memo(({ coordinates, strokeColor, strokeWidth, 
 });
 
 // Optimized marker
-export const MapMarker = React.memo(({ coordinate, title, children }) => {
+export const MapMarker = React.memo(({ coordinate, title, children }: MapMarkerProps) => {
   const isNative = Platform.OS !== 'web';
   
   // Skip rendering on web
@@ -207,7 +260,16 @@ export const MapMarker = React.memo(({ coordinate, title, children }) => {
 });
 
 // Marker clustering implementation for admin view
-export const MapMarkerCluster = ({ markers, region }) => {
+export const MapMarkerCluster = ({ 
+  markers, 
+  region 
+}: {
+  markers: Array<{
+    coordinate: LatLng;
+    walkId?: string;
+  }>;
+  region: Region;
+}) => {
   const isNative = Platform.OS !== 'web';
   
   // Skip rendering on web
@@ -225,7 +287,7 @@ export const MapMarkerCluster = ({ markers, region }) => {
     while (markersToProcess.length > 0) {
       const marker = markersToProcess.pop();
       let cluster = {
-        coordinate: marker.coordinate,
+        coordinate: marker?.coordinate || {latitude: 0, longitude: 0},
         count: 1,
         points: [marker]
       };
@@ -235,8 +297,8 @@ export const MapMarkerCluster = ({ markers, region }) => {
       while (i < markersToProcess.length) {
         const otherMarker = markersToProcess[i];
         const distance = calculateDistance(
-          marker.coordinate.latitude, 
-          marker.coordinate.longitude,
+          marker?.coordinate?.latitude || 0, 
+          marker?.coordinate?.longitude || 0,
           otherMarker.coordinate.latitude,
           otherMarker.coordinate.longitude
         );
@@ -265,9 +327,9 @@ export const MapMarkerCluster = ({ markers, region }) => {
           coordinate={cluster.coordinate}
           tracksViewChanges={false}
         >
-          {cluster.count > 1 ? (
+          {cluster && 'count' in cluster ? (
             <View style={styles.clusterMarker}>
-              <Text style={styles.clusterMarkerText}>{cluster.count}</Text>
+              <Text style={styles.clusterMarkerText}>{cluster.count || 1}</Text>
             </View>
           ) : (
             <View style={styles.customMarker}>
