@@ -1,0 +1,30 @@
+version: "3"
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017" # mapping host port 27017
+    container_name: kwalk-mongodb
+    restart: always
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodbuser
+      MONGO_INITDB_ROOT_PASSWORD: G7k9dT!mQ5s@V4x
+      MONGO_INITDB_DATABASE: prayerwalk
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - backend
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+    driver: local
+  appdata:
+    driver: local

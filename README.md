@@ -1,112 +1,50 @@
-<div align="center">
-    <img src="https://github.com/alexdavidpratt/kharis-prayer-walk/blob/main/assets/favicon.png" alt="Logo" width="80" height="80">
+# Welcome to your Expo app 👋
 
-<h3 align="center">Kharis Prayer Walk App</h3>
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-  <p align="center">
-    A mobile application to track and record prayer walks for the Kharis Church community.
-    <br />
-     <a href="https://github.com/alexdavidpratt/kharis-prayer-walk">github.com/alexdavidpratt/kharis-prayer-walk</a>
-  </p>
-</div>
+## Get started
 
+1. Install dependencies
 
+   ```bash
+   npm install
+   ```
 
-## Table of Contents
+2. Start the app
 
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#key-features">Key Features</a></li>
-      </ul>
-    </li>
-    <li><a href="#architecture">Architecture</a></li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+   ```bash
+   npx expo start
+   ```
 
-## About The Project
+In the output, you'll find options to open the app in a
 
-The Kharis Prayer Walk App is a mobile application designed for the Kharis Church community to track and record their prayer walks. It allows users to start and stop tracking, record location data, calculate distance and time, and save their prayer walks for future reference. The app also includes admin features to view all prayer walks and user profiles.
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-### Key Features
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-- **Prayer Walk Tracking:** Start and stop tracking prayer walks, recording location data, distance, and time.
-- **Map Integration:** Display prayer walk paths on a map using `react-native-maps`.
-- **User Authentication:** Secure user login and signup using Supabase.
-- **Data Storage:** Store prayer walk data in a Supabase database.
-- **Admin Features:** Admin users can view all prayer walks and user statistics.
-- **Location Consent:** Explicit consent required for location data collection during signup.
-- **Platform Support:** Supports both native mobile platforms (iOS and Android) and web.
+## Get a fresh project
 
-## Architecture
+When you're ready, run:
 
+```bash
+npm run reset-project
+```
 
-The Kharis Prayer Walk App is built using the following technologies:
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-- **Frontend:**
-    - React Native: A framework for building native mobile apps using JavaScript and React.
-    - Expo: A platform for building, deploying, and quickly iterating on React Native apps.
-    - React Native Maps: Used for displaying maps and prayer walk paths.
-    - React Native Reanimated: Used for smooth animations.
-    - React Navigation: Used for handling navigation between different screens.
-- **Backend:**
-    - Supabase: A backend-as-a-service (BaaS) platform used for user authentication and data storage.
-- **Utilities:**
-    - `@react-native-async-storage/async-storage`: Used for persistent storage of authentication tokens.
-    - `expo-location`: Used for accessing device location.
-    - `expo-linear-gradient`: Used for creating gradient effects.
+## Learn more
 
-## Getting Started
+To learn more about developing your project with Expo, look at the following resources:
 
-### Prerequisites
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-- Node.js (>=16)
-- npm or Yarn
-- Expo CLI (`npm install -g expo-cli`)
-- A Supabase account and project
+## Join the community
 
-### Installation
+Join our community of developers creating universal apps.
 
-Instructions for setting up the project:
-
-1.  Clone the repository:
-
-    ```sh
-    git clone https://github.com/alexdavidpratt/kharis-prayer-walk.git
-    cd kharis-prayer-walk
-    ```
-
-2.  Install the dependencies:
-
-    ```sh
-    npm install
-    # or
-    yarn install
-    ```
-
-3.  Configure the environment variables:
-
-    - Create a `.env` file (if needed) and add your Supabase URL and Anon Key.  However, the current code has the keys hardcoded in `utils/supabase.ts`.  It is highly recommended to use environment variables instead.
-
-4.  Run the application:
-
-    ```sh
-    npx expo start
-    ```
-
-    This will start the Expo development server, and you can then run the app on your iOS or Android device using the Expo Go app, or in a web browser.
-
-## Acknowledgments
-
-- Special thanks to the Supabase team for providing a great backend-as-a-service platform and A0.dev for speeding up teh development process. 
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
