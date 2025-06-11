@@ -1,34 +1,18 @@
 import Button from "@/components/Button";
-import ImageViewer from "@/components/ImageViewer";
-import MapViewer from "@/components/MapViewer";
+import HistoryView from "@/components/HistoryView";
 import WalkTracker from "@/components/WalkTracker";
-import { useCallback, useState } from "react";
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { AppContext } from "@/contexts/AppContext";
+import { historyItems } from "@/data/mocks";
+import { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
-import CircleButton from "@/components/CircleButton";
-import { AppContext } from "@/contexts/AppContext";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-const PlaceholderImage = require("@/assets/images/placeholder.webp");
-
 export default function Index() {
-  const [refreshing, setRefreshing] = useState(false);
   const [walking, setWalking] = useState(false);
   const [permissions, setPermissions] = useState<string[]>([]);
   const [walkingData, setWalkingData] = useState<string[]>([]);
   const isModalVisible = walking;
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 500);
-  }, []);
 
   const onModalClose = () => {
     setWalking(false);
@@ -41,45 +25,9 @@ export default function Index() {
   return (
     <GestureHandlerRootView style={styles.main}>
       <SafeAreaProvider>
-        <AppContext.Provider
-          value={{ walking, setWalking, permissions, setPermissions }}
-        >
+        <AppContext.Provider value={{ walking, setWalking, permissions, setPermissions }}>
           <SafeAreaView style={styles.main}>
-            <ScrollView
-              contentContainerStyle={styles.scrollViewContainer}
-              refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-              }
-            >
-              <Text style={styles.text}>Home screen</Text>
-              <View
-                style={{
-                  ...styles.container,
-                  ...styles.itemContainer,
-                  backgroundColor: "blue",
-                }}
-              >
-                <ImageViewer imgSource={PlaceholderImage} />
-              </View>
-              <View
-                style={{
-                  ...styles.container,
-                  ...styles.itemContainer,
-                  backgroundColor: "red",
-                }}
-              >
-                <MapViewer />
-              </View>
-              <View
-                style={{
-                  ...styles.container,
-                  ...styles.itemContainer,
-                  backgroundColor: "green",
-                }}
-              >
-                <ImageViewer imgSource={PlaceholderImage} />
-              </View>
-            </ScrollView>
+            <HistoryView items={historyItems}></HistoryView>
             <View
               style={{
                 ...styles.footerContainer,
@@ -88,10 +36,7 @@ export default function Index() {
             >
               <Button label="start walk" onPress={onModalOpen} />
             </View>
-            <WalkTracker isVisible={isModalVisible} onClose={onModalClose}>
-              <Text>Walk Tracker</Text>
-              <CircleButton iconName="close" onPress={onModalClose} />
-            </WalkTracker>
+            <WalkTracker isVisible={isModalVisible} onClose={onModalClose} />
           </SafeAreaView>
         </AppContext.Provider>
       </SafeAreaProvider>
@@ -103,22 +48,25 @@ const styles = StyleSheet.create({
   main: {
     flex: 1,
     backgroundColor: "#25292e",
+    fontFamily: "Roboto-Light",
   },
   container: {
     flex: 1,
-    padding: 5,
     alignItems: "center",
     justifyContent: "center",
   },
   itemContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     borderRadius: 18,
     overflow: "hidden",
+    height: 140,
+    marginVertical: 3,
+    marginHorizontal: 5,
   },
   scrollViewContainer: {
-    // flex: 1,
-    // justifyContent: "center",
-    // alignItems: "center",
-    // padding: 10,
+    paddingBottom: 80,
   },
   imageContainer: {
     flex: 1,
@@ -126,7 +74,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     alignItems: "center",
-    position: "relative",
+    position: "absolute",
     bottom: 5,
     left: "auto",
     right: "auto",
