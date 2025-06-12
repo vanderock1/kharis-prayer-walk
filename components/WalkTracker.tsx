@@ -1,9 +1,11 @@
 import MapViewer from "@/components/MapViewer";
 import { AppContext } from "@/contexts/AppContext";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { PropsWithChildren, useCallback, useContext, useEffect, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import CircleButton from "./CircleButton";
+
 type Props = PropsWithChildren<{
   isVisible: boolean;
   onClose: () => void;
@@ -35,19 +37,16 @@ export default function WalkTracker({ children, onClose }: Props) {
       index={-1} // -1 means closed, 0 means collapsed, 1 means expanded
       ref={bottomSheetRef}
       onChange={handleSheetChanges}
-      snapPoints={[75, "50%", "100"]}
+      snapPoints={[useBottomTabBarHeight() + 75, "50%", "100"]}
       style={styles.container}
       backgroundStyle={styles.backgroundStyle}
     >
+      {/* <BlurView tint="dark" intensity={10} style={StyleSheet.absoluteFill} experimentalBlurMethod="dimezisBlurView" /> */}
+
       <BottomSheetView style={styles.contentContainer}>
         <Text style={{ color: "white" }}>Walk Tracker</Text>
         <CircleButton iconName="close" onPress={close} />
-        <View
-          style={{
-            ...styles.mapContainer,
-            backgroundColor: "red",
-          }}
-        >
+        <View style={styles.mapContainer}>
           <MapViewer style={styles.mapView} />
         </View>
       </BottomSheetView>
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backgroundStyle: {
-    backgroundColor: "rgba(0, 0, 0, 0.81)",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   contentContainer: {
     flex: 1,

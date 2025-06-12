@@ -1,4 +1,5 @@
 import HistoryItem, { HistoryItemProps } from "@/components/HistoryItem";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useCallback, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, TouchableHighlight, View } from "react-native";
 
@@ -24,7 +25,7 @@ export default function HistoryView({ items }: HistoryViewProps) {
   return (
     <FlatList
       ListEmptyComponent={EmptyHistoryView}
-      contentContainerStyle={styles.scrollViewContainer}
+      contentContainerStyle={{ paddingBottom: useBottomTabBarHeight() + 80 }}
       overScrollMode="always"
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       data={items}

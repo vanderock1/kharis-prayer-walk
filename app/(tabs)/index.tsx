@@ -3,11 +3,11 @@ import HistoryView from "@/components/HistoryView";
 import WalkTracker from "@/components/WalkTracker";
 import { AppContext } from "@/contexts/AppContext";
 import { historyItems } from "@/data/mocks";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-
 export default function Index() {
   const [walking, setWalking] = useState(false);
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -21,9 +21,9 @@ export default function Index() {
     console.log("onModalOpen called");
     setWalking(true);
   };
-
+  const tabBarHeight = useBottomTabBarHeight();
   return (
-    <GestureHandlerRootView style={styles.main}>
+    <GestureHandlerRootView style={{ ...styles.main, paddingBottom: 0 }}>
       <SafeAreaProvider>
         <AppContext.Provider value={{ walking, setWalking, permissions, setPermissions }}>
           <SafeAreaView style={styles.main}>
@@ -32,6 +32,7 @@ export default function Index() {
               style={{
                 ...styles.footerContainer,
                 ...(walking ? styles.hide : {}),
+                bottom: tabBarHeight + 5,
               }}
             >
               <Button label="start walk" onPress={onModalOpen} />
