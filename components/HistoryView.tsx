@@ -1,7 +1,7 @@
 import HistoryItem, { HistoryItemProps } from "@/components/HistoryItem";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useCallback, useState } from "react";
-import { FlatList, RefreshControl, StyleSheet, TouchableHighlight, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, View } from "react-native";
 
 export interface HistoryViewProps {
   items: HistoryItemProps[];
@@ -30,9 +30,9 @@ export default function HistoryView({ items }: HistoryViewProps) {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       data={items}
       renderItem={({ item, index, separators }) => (
-        <TouchableHighlight key={index} onPress={() => _onPress(item)} onShowUnderlay={separators.highlight} onHideUnderlay={separators.unhighlight}>
-          <HistoryItem {...item} />
-        </TouchableHighlight>
+        // <TouchableHighlight key={index} onPress={() => _onPress(item)} onShowUnderlay={separators.highlight} onHideUnderlay={separators.unhighlight}>
+        <HistoryItem key={index} {...item} />
+        // </TouchableHighlight>
       )}
     ></FlatList>
   );
